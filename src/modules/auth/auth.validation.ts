@@ -1,5 +1,4 @@
-import { email, z } from "zod";
-
+import z from "zod";
 export const registerSchema = z.object({
   name: z
     .string()
@@ -15,7 +14,7 @@ export const loginSchema = z.object({
   password: z.string().min(8, "password must be at least 8 characters."),
 });
 
-export const verifyEmailSchema = z.object({
+export const verifyOtpSchema = z.object({
   email: z.email(),
   otp: z.string().length(6),
 });

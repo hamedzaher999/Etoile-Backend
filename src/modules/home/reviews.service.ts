@@ -22,7 +22,7 @@ export const getTopReviews = async () => {
 };
 
 export const createReport = async (account_id: string, report: string) => {
-  const result = insertReport(account_id, report);
+  const result = await insertReport(account_id, report);
   if (!result)
     throw new CustomError(500, "some thing went wrong, pleas try again");
   return result;

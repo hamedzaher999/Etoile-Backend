@@ -1,8 +1,7 @@
 CREATE TYPE order_status AS ENUM (
     'pending',
     'accepted',
-    'preparing',
-    'shipping',
+    'payed',
     'delivered',
     'canceled'
 );
@@ -19,21 +18,16 @@ CREATE TABLE orders (
     package_id UUID NOT NULL
         REFERENCES packages(id),
 
-    country_id UUID NOT NULL
-        REFERENCES countries(id),
+    branch_id UUID NOT NULL
+        REFERENCES branches(id),
 
-    city_id UUID NOT NULL
-        REFERENCES cities(id),
+    price DECIMAL(10,2) NOT NULL,
 
-    price NUMERIC(10,2) NOT NULL,
+    delivery_location VARCHAR NOT NULL,
 
-    delivery_location TEXT NOT NULL,
+    contact VARCHAR,
 
-    receiver_phone VARCHAR(30),
-    
-    receiver_name VARCHAR(150),
-
-    reference VARCHAR(100) UNIQUE NOT NULL,
+    reference VARCHAR,
 
     status order_status NOT NULL DEFAULT 'pending',
 
@@ -42,10 +36,9 @@ CREATE TABLE orders (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX idx_orders_client_id ON orders(client_id);
+CREATE INDEX idx_orders_branch_id ON orders(branch_id);
 
-CREATE INDEX idx_orders_client_id
-ON orders(client_id) 
-
-CREATE UNIQUE INDEX one_pending_order_per_user
+CREATE UNIQUE INDEX one_pending_order_per_client
 ON orders(client_id)
 WHERE status = 'pending';

@@ -4,27 +4,36 @@ export interface User {
   username: string;
   type: string;
   status: string;
-  email: string;
+  channel: string;
+  email: string | null;
+  number: string | null;
   avatar_url?: string | null;
-  email_verified_at: Date | null;
-  is_vip: boolean;
   password_hash: string;
+  is_vip: boolean;
+  vip_started_at: Date | null;
+  vip_expired_at: Date | null;
+  email_verified_at: Date | null;
+  phone_verified_at: Date | null;
   created_at: Date;
-  updated_at: Date | null;
   deleted_at: Date | null;
 }
+
 export interface SanitizedUser {
   id: string;
   name: string;
   username: string;
   type: string;
   status: string;
-  email: string;
+  channel: string;
+  email: string | null;
+  number: string | null;
   avatar_url?: string | null;
-  email_verified_at: Date | null;
   is_vip: boolean;
+  vip_started_at: Date | null;
+  vip_expired_at: Date | null;
+  email_verified_at: Date | null;
+  phone_verified_at: Date | null;
   created_at: Date;
-  updated_at: Date | null;
   deleted_at: Date | null;
 }
 
@@ -38,12 +47,12 @@ export interface Admin {
   avatar_url?: string | null;
   email_verified_at: Date;
   created_at: Date;
-  updated_at: Date | null;
 }
 
-export interface EmailVerificationOtp {
+export interface Otp {
   id: string;
   account_id: string;
+  channel: string;
   otp_hash: string;
   used: boolean;
   expires_at: Date;

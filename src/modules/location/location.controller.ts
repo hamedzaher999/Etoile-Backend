@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import {
   changeCityInfo,
   changeCountryInfo,
+  deleteCity,
+  deleteCountry,
   getActiveCountries,
   getAllCountries,
   getCountryActiveCities,
   getCountryCities,
 } from "./location.service.js";
 import { errorHandler } from "../../utils/errorMessage.js";
-import { deleteCity, deleteCountry } from "./location.model.js";
 
 export const allCountriesController = async (req: Request, res: Response) => {
   try {
@@ -45,6 +46,7 @@ export const countryActiveCitiesController = async (
 ) => {
   try {
     const { id } = req.params;
+    console.log(id);
     const result = await getCountryActiveCities(id as string);
     return res.status(200).send({
       success: true,

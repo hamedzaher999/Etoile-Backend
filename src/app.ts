@@ -6,8 +6,14 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 import AccountRoutes from "./routes/account.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { stripeWebhookController } from "./modules/order_payments/order_payments.controller.js";
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
+app.post(
+  "/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  stripeWebhookController
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRoutes);

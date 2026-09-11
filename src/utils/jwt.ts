@@ -1,20 +1,10 @@
 import jwt from "jsonwebtoken";
-import { undefined } from "zod";
-
 interface JwtPayload {
   account_id: string;
+  type: "customer" | "admin";
 }
-export const generateAccessToken = (payload: JwtPayload) => {
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET!,
 
-    {
-      expiresIn: "30m",
-    }
-  );
-};
-export const generateRefreshToken = (payload: JwtPayload) => {
+export const generateAccessToken = (payload: JwtPayload) => {
   return jwt.sign(payload, process.env.JWT_SECRET!, {
     expiresIn: "7d",
   });

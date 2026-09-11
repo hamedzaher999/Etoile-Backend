@@ -1,29 +1,43 @@
+CREATE TYPE account_type AS ENUM ('customer', 'admin');
+CREATE TYPE account_status AS ENUM ('active', 'blocked', 'deleted', 'restricted');
+CREATE TYPE account_channel AS ENUM ('email', 'phone');
+
 CREATE TABLE accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    type VARCHAR(20) DEFAULT 'customer',
+    type account_type NOT NULL DEFAULT 'customer',
 
-    status VARCHAR(20) DEFAULT 'active',
+    status account_status NOT NULL DEFAULT 'active',
 
-    auth_method VARCHAR(20) DEFAULT 'PASSWORD',
+    channel account_channel NOT NULL DEFAULT 'email',
 
     name VARCHAR NOT NULL,
 
     username VARCHAR UNIQUE NOT NULL,
 
-    email VARCHAR UNIQUE NOT NULL,
+    email VARCHAR UNIQUE,
 
-    password_hash VARCHAR,
+    number VARCHAR UNIQUE,
 
     avatar_url VARCHAR,
 
-    is_vip BOOLEAN DEFAULT FALSE,
+    password_hash VARCHAR NOT NULL,
+
+    is_vip BOOLEAN NOT NULL DEFAULT FALSE,
+
+    vip_started_at TIMESTAMPTZ,
+
+    vip_expired_at TIMESTAMPTZ,
 
     email_verified_at TIMESTAMPTZ,
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
+    phone_verified_at TIMESTAMPTZ,
 
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    deleted_at TIMESTAMPTZ
+    deleted_at TIMESTAMPTZ,
+
+    CONSTRAINT accounts_contact_required CHECK (email IS NOT NULL OR number IS NOT NULL)
 );
+
+CREATE INDEX idx_accounts_status ON accounts(status);

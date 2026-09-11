@@ -1,11 +1,10 @@
 import e, { Response } from "express";
 import { UNKNOWN_ERROR } from "../constant/errors.js";
 import { CustomError } from "./customError.js";
-import { success } from "zod";
 
 export const errorMessage = (error: any): string => {
   if (!error) return UNKNOWN_ERROR;
-  const message = e instanceof Error ? e?.message : UNKNOWN_ERROR;
+  const message = error instanceof Error ? error?.message : UNKNOWN_ERROR;
   return message;
 };
 

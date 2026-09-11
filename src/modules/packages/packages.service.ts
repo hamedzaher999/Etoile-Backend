@@ -1,12 +1,12 @@
 import { CustomError } from "../../utils/customError.js";
-import { PackageInfo } from "./packageInfo.validation.js";
+import { PackageCreateInfo, PackageInfo } from "./packageInfo.validation.js";
 import {
   selectPackageById,
   selectActivePackages,
   updatePackageInfo,
   selectAllPackages,
+  insertPackage,
 } from "./packages.model.js";
-
 export const getActivePackages = async () => {
   const result = await selectActivePackages();
   return result;
@@ -24,6 +24,12 @@ export const getAllPackages = async ({
 export const getPackageById = async (id: string) => {
   const result = await selectPackageById(id);
   if (!result) throw new CustomError(400, "bad inputs.");
+  return result;
+};
+
+export const createPackage = async (info: PackageCreateInfo) => {
+  const result = await insertPackage(info);
+  if (!result) throw new CustomError(500, "package creation failed.");
   return result;
 };
 

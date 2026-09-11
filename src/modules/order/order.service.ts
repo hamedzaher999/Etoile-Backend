@@ -4,7 +4,6 @@ import {
   selectClientOrders,
   selectCurrentOrderByClientId,
   selectOrderById,
-  selectOrderByStatus,
   selectOrders,
   selectPendingOrderByClientId,
   updateCancelOrderByClient,
@@ -13,13 +12,10 @@ import {
 import { CustomError } from "../../utils/customError.js";
 import { selectPackageById } from "../packages/packages.model.js";
 import { SanitizedUser } from "../auth/auth.type.js";
-import { OrderFilters, OrderForm, OrderStatus } from "./type.js";
-import {
-  selectActiveCityById,
-  selectActiveCountryById,
-} from "../location/location.model.js";
-import { selectPaymentMethodById } from "../home/footer.model.js";
-
+import { OrderData, OrderFilters, OrderForm, OrderStatus } from "./type.js";
+import { selectBranchById } from "../branches/branches.model.js";
+import { registerOrderAgainstSettings } from "../settings/settings.service.js";
+import { selectPaymentMethodById } from "../payment_methods/payment_methods.model.js";
 export const createNewOrder = async (
   orderForm: OrderForm,
   user: SanitizedUser
@@ -35,36 +31,41 @@ export const createNewOrder = async (
     );
   }
   const activeOrder = await selectPendingOrderByClientId(user.id);
-
   if (activeOrder)
     throw new CustomError(400, "sorry, you already have an order");
 
-  const country = await selectActiveCountryById(orderForm.country_id);
-  if (!country || !country.is_active) throw new CustomError(400, "bad inputs");
-  const city = await selectActiveCityById(orderForm.city_id);
-  if (!city || !city.is_active) throw new CustomError(400, "bad inputs");
+  const branch = await selectBranchById(orderForm.branch_id);
+  if (!branch || !branch.is_active)
+    throw new CustomError(400, "selected branch is not available.");
+
   const payment_method = await selectPaymentMethodById(
     orderForm.payment_method_id
   );
   if (!payment_method || !payment_method.is_active)
     throw new CustomError(400, "bad inputs");
 
-  const info = {
-    ...orderForm,
-    package_name: selectedPackage.name,
-    country_name: country.name,
-    payment_method_name: payment_method.name,
-    city_name: city.name,
+  await registerOrderAgainstSettings(
+    orderForm.branch_id,
+    !!selectedPackage.is_vip_only
+  );
+
+  const info: OrderData = {
+    client_id: user.id,
+    payment_method_id: orderForm.payment_method_id,
+    package_id: orderForm.package_id,
+    branch_id: orderForm.branch_id,
     price: selectedPackage.price,
+    delivery_location: orderForm.delivery_location,
+    contact: orderForm.contact,
   };
-  const order = await insertOrder(info, user.id);
+  const order = await insertOrder(info);
   if (!order) throw new CustomError(500, "order failed, pleas try again");
   return order;
 };
 
 export const CancelOrderByClient = async (id: string, client_id: string) => {
   const order = await selectClientOrderById(id, client_id);
-  if (!order) throw new CustomError(400, "order not found");
+  if (!order) throw new CustomError(404, "order not found");
   if (!["pending", "accepted"].includes(order.status))
     throw new CustomError(400, "sorry, you cannot cancel this order");
   const result = await updateCancelOrderByClient(id, client_id);
@@ -86,19 +87,12 @@ export const getClientOrders = async (client_id: string) => {
 // admin
 const transitions: Partial<Record<OrderStatus, OrderStatus[]>> = {
   pending: ["accepted", "canceled"],
-  accepted: ["preparing", "canceled"],
-  preparing: ["shipping"],
-  shipping: ["delivered"],
+  accepted: ["payed", "canceled"],
+  payed: ["delivered"],
 };
 
-// ----------
 export const getOrders = async (filters: OrderFilters) => {
   return await selectOrders(filters);
-};
-
-export const getOrdersByStatus = async (status: OrderStatus) => {
-  const result = await selectOrderByStatus(status);
-  return result;
 };
 
 export const changeOrderStatus = async (

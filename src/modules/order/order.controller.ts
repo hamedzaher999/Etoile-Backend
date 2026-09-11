@@ -8,8 +8,6 @@ import {
   getClientOrders,
   getOrders,
 } from "./order.service.js";
-import { OrderStatus } from "./type.js";
-
 export const newOrderController = async (req: Request, res: Response) => {
   try {
     const body = req.body;
@@ -80,10 +78,8 @@ export const ordersController = async (req: Request, res: Response) => {
 export const OrderStatusController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const result = await changeOrderStatus(
-      id as string,
-      req.query.stats as OrderStatus
-    );
+    const { status } = req.body;
+    const result = await changeOrderStatus(id as string, status);
     return res.status(200).send({
       success: true,
       data: result,

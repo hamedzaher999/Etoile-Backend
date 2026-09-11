@@ -2,32 +2,36 @@ import { Router } from "express";
 import {
   register,
   login,
-  verifyEmailController,
   send_otp,
   changePasswordByEmail,
   me,
   logout,
+  verifyOtpController,
 } from "../modules/auth/auth.controller.js";
 import { validatorMiddleware } from "../middlewares/validator.middleware.js";
 import {
   registerSchema,
   loginSchema,
-  verifyEmailSchema,
   changePasswordSchema,
+  verifyOtpSchema,
 } from "../modules/auth/auth.validation.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-
+import z from "zod";
 const route = Router();
-route.get("/me", authMiddleware(), me);
-route.post("/logout", authMiddleware(), logout);
+route.get("/me", authMiddleware("customer"), me);
+route.post("/logout", authMiddleware("customer"), logout);
 route.post("/login", validatorMiddleware(loginSchema, "body"), login);
 route.post("/register", validatorMiddleware(registerSchema, "body"), register);
 route.post(
-  "/verify_email",
-  validatorMiddleware(verifyEmailSchema, "body"),
-  verifyEmailController
+  "/verify_otp",
+  validatorMiddleware(verifyOtpSchema, "body"),
+  verifyOtpController
 );
-route.post("/resend_otp", send_otp);
+route.post(
+  "/resend_otp",
+  validatorMiddleware(z.object({ email: z.email() }), "body"),
+  send_otp
+);
 route.post(
   "/change_password",
   validatorMiddleware(changePasswordSchema, "body"),

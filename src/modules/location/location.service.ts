@@ -9,9 +9,10 @@ import {
   selectAllCitiesByCountryId,
   selectCountryById,
   selectCityById,
+  deleteCountryById,
+  deleteCityById,
 } from "./location.model.js";
 import { cityInfo, countryInfo } from "./location.validation.js";
-import { City, Country } from "./locations.types.js";
 
 export const getActiveCountries = async () => {
   const result = await selectActiveCountries();
@@ -61,6 +62,21 @@ export const changeCityInfo = async (id: string, new_info: cityInfo) => {
     ...new_info,
   };
   const result = await updateCityInfo(id, info);
+  if (!result) throw new CustomError(500, "try again.");
+  return result;
+};
+
+export const deleteCountry = async (id: string) => {
+  const country = await selectCountryById(id);
+  if (!country) throw new CustomError(404, "country not found.");
+  const result = await deleteCountryById(id);
+  if (!result) throw new CustomError(500, "try again.");
+  return result;
+};
+export const deleteCity = async (id: string) => {
+  const country = await selectCityById(id);
+  if (!country) throw new CustomError(404, "country not found.");
+  const result = await deleteCityById(id);
   if (!result) throw new CustomError(500, "try again.");
   return result;
 };

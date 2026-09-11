@@ -5,10 +5,9 @@ import {
   topReviews,
 } from "../modules/home/reviews.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { PaymentMethodsController } from "../modules/home/footer.controller.js";
 import { validatorMiddleware } from "../middlewares/validator.middleware.js";
 import { reportSchema, ReviewSchema } from "../modules/home/validation.js";
-
+import { footerStructureController } from "../modules/footer/footer.controller.js";
 export const router = Router();
 
 router.get("/review", topReviews);
@@ -24,5 +23,6 @@ router.post(
   validatorMiddleware(reportSchema, "body"),
   Report
 );
-router.get("/payment_methods", PaymentMethodsController);
+router.get("/footer", footerStructureController);
+
 export default router;

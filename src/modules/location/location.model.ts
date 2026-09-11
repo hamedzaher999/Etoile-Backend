@@ -1,7 +1,7 @@
-import { id } from "zod/locales";
 import pool from "../../db/index.js";
 import { countryInfo } from "./location.validation.js";
 import { City } from "./locations.types.js";
+import { withTransaction } from "../../db/withTransaction.js";
 
 export const selectActiveCountries = async () => {
   const query = `SELECT * FROM countries 
@@ -98,19 +98,34 @@ export const updateCountryInfo = async (
   return result.rows[0];
 };
 
-export const deleteCountry = async (id: string) => {
-  const query = `UPDATE countries SET
-  deleted_at = NOW(),
-  is_active = FALSE
-  WHERE id = $1
-  AND deleted_at IS NULL
-  RETURNING *
+export const deleteCountryById = async (id: string) => {
+  const countryQuery = `
+    UPDATE countries
+    SET deleted_at = NOW(),
+        is_active = FALSE
+    WHERE id = $1
+      AND deleted_at IS NULL
+    RETURNING *
   `;
-  const result = await pool.query(query, [id]);
-  return result.rows[0];
+
+  const cityQuery = `
+    UPDATE cities
+    SET deleted_at = NOW(),
+        is_active = FALSE
+    WHERE country_id = $1
+      AND deleted_at IS NULL
+  `;
+
+  return withTransaction(async (client) => {
+    const countryResult = await client.query(countryQuery, [id]);
+
+    await client.query(cityQuery, [id]);
+
+    return countryResult.rows[0];
+  });
 };
 
-export const deleteCity = async (id: string) => {
+export const deleteCityById = async (id: string) => {
   const query = `UPDATE cities SET
   deleted_at = NOW(),
   is_active = FALSE

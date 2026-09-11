@@ -2,4 +2,8 @@
 .vscode
 node_modules
 todo
-db.sql
+db2.sql
+DB.sql
+code.cjs
+source/
+dist/
