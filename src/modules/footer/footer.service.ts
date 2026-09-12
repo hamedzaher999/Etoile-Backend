@@ -15,10 +15,14 @@ import {
 
 export const getFooterStructure = async () => {
   const rows = await selectFooterStructure();
-  const grouped: Record<string, { key: string; items: any[] }> = {};
+  const grouped: Record<string, { id: string; key: string; items: any[] }> = {};
   for (const row of rows) {
     if (!grouped[row.title_id]) {
-+     grouped[row.title_id] = { id: row.title_id, key: row.title_key, items: [] };
+      grouped[row.title_id] = {
+        id: row.title_id,
+        key: row.title_key,
+        items: [],
+      };
     }
     if (row.item_id) {
       grouped[row.title_id].items.push({
