@@ -1,0 +1,2 @@
+ALTER TABLE reviews
+ADD COLUMN deleted_at TIMESTAMPTZ;

@@ -48,12 +48,14 @@ export const send_otp = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
+    const isProd = process.env.NODE_ENV === "production";
+
     const { email, password } = req.body;
     const result = await loginUser(email, password);
     res.cookie("access_token", result.accessToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
     res.status(200).send({
@@ -73,12 +75,14 @@ export const login = async (req: Request, res: Response) => {
 
 export const verifyOtpController = async (req: Request, res: Response) => {
   try {
+    const isProd = process.env.NODE_ENV === "production";
+
     const { email, otp } = req.body;
     const result = await verifyOtp(email, otp);
     res.cookie("access_token", result.accessToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
     res.status(201).send({
@@ -117,7 +121,7 @@ export const changePasswordByEmail = async (req: Request, res: Response) => {
 export const me = async (req: Request, res: Response) => {
   res.status(200).send({
     success: true,
-    data: req.user,
+    data: req.user || req.admin,
   });
 };
 //============================================

@@ -16,10 +16,11 @@ import {
   verifyOtpSchema,
 } from "../modules/auth/auth.validation.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+
 import z from "zod";
 const route = Router();
-route.get("/me", authMiddleware("customer"), me);
-route.post("/logout", authMiddleware("customer"), logout);
+route.get("/me", authMiddleware(), me);
+route.post("/logout", authMiddleware(), logout);
 route.post("/login", validatorMiddleware(loginSchema, "body"), login);
 route.post("/register", validatorMiddleware(registerSchema, "body"), register);
 route.post(

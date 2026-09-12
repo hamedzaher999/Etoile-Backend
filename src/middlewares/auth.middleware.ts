@@ -4,7 +4,7 @@ import { selectUserById } from "../modules/auth/auth.model.js";
 import { sanitizeUser } from "../utils/sanitizeUser.js";
 import { Role } from "../types/app.types.js";
 
-export const authMiddleware = (role: Role) => {
+export const authMiddleware = (role?: Role) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.cookies.access_token;
@@ -30,14 +30,14 @@ export const authMiddleware = (role: Role) => {
         });
       }
 
-      if (account.status !== "active" || account.type !== role) {
+      if (account.status !== "active" || (role && account.type !== role)) {
         return res.status(401).json({
           success: false,
           message: "unauthorized.",
         });
       }
 
-      if (role === "admin") {
+      if (account.type === "admin") {
         req.admin = sanitizeUser(account);
       } else {
         req.user = sanitizeUser(account);
