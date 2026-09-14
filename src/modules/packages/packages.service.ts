@@ -6,6 +6,7 @@ import {
   updatePackageInfo,
   selectAllPackages,
   insertPackage,
+  selectPackageByIdRaw,
 } from "./packages.model.js";
 export const getActivePackages = async () => {
   const result = await selectActivePackages();
@@ -37,7 +38,7 @@ export const changePackageInfo = async (
   package_id: string,
   packageInfo: PackageInfo
 ) => {
-  const selectedPackage = await selectPackageById(package_id);
+  const selectedPackage = await selectPackageByIdRaw(package_id);
   if (!selectedPackage) throw new CustomError(400, "package not found.");
 
   const newData: PackageInfo = {

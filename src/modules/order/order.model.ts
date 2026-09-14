@@ -6,6 +6,7 @@ const ORDER_DETAILS_SELECT = `
     o.*,
     p.name AS package_name,
     pm.name AS payment_method_name,
+    pm.is_online AS payment_method_is_online,
     b.name AS branch_name,
     b.address AS branch_address,
     c.name AS country_name,
@@ -55,10 +56,10 @@ export const insertOrder = async (orderForm: OrderData) => {
   return result.rows[0];
 };
 
-export const selectPendingOrderByClientId = async (client_id: string) => {
+export const selectActiveOrderByClientId = async (client_id: string) => {
   const query = `
     SELECT * FROM orders 
-    WHERE client_id = $1 AND status = 'pending'
+    WHERE client_id = $1 AND status IN ('pending', 'accepted', 'payed')
     `;
   const result = await pool.query(query, [client_id]);
   return result.rows[0];

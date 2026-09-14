@@ -1,11 +1,11 @@
 import {
   insertOrder,
+  selectActiveOrderByClientId,
   selectClientOrderById,
   selectClientOrders,
   selectCurrentOrderByClientId,
   selectOrderById,
   selectOrders,
-  selectPendingOrderByClientId,
   updateCancelOrderByClient,
   UpdateOrder,
 } from "./order.model.js";
@@ -30,7 +30,7 @@ export const createNewOrder = async (
       "order denied, this package is only available for our vip client."
     );
   }
-  const activeOrder = await selectPendingOrderByClientId(user.id);
+  const activeOrder = await selectActiveOrderByClientId(user.id);
   if (activeOrder)
     throw new CustomError(400, "sorry, you already have an order");
 
@@ -44,11 +44,6 @@ export const createNewOrder = async (
   if (!payment_method || !payment_method.is_active)
     throw new CustomError(400, "bad inputs");
 
-  await registerOrderAgainstSettings(
-    orderForm.branch_id,
-    !!selectedPackage.is_vip_only
-  );
-
   const info: OrderData = {
     client_id: user.id,
     payment_method_id: orderForm.payment_method_id,
@@ -60,6 +55,17 @@ export const createNewOrder = async (
   };
   const order = await insertOrder(info);
   if (!order) throw new CustomError(500, "order failed, pleas try again");
+
+  try {
+    await registerOrderAgainstSettings(
+      orderForm.branch_id,
+      !!selectedPackage.is_vip_only
+    );
+  } catch (e) {
+    await updateCancelOrderByClient(order.id, user.id);
+    throw e;
+  }
+
   return order;
 };
 

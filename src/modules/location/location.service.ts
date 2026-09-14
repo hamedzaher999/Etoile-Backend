@@ -11,8 +11,14 @@ import {
   selectCityById,
   deleteCountryById,
   deleteCityById,
+  insertCity,
+  insertCountry,
 } from "./location.model.js";
-import { cityInfo, countryInfo } from "./location.validation.js";
+import {
+  cityInfo,
+  countryInfo,
+  newCountryInfo,
+} from "./location.validation.js";
 
 export const getActiveCountries = async () => {
   const result = await selectActiveCountries();
@@ -34,9 +40,8 @@ export const getCountryActiveCities = async (id: string) => {
 };
 
 export const getCountryCities = async (id: string, is_Active?: boolean) => {
-  const country = await selectActiveCountryById(id);
-  if (!country || !country.is_active)
-    throw new CustomError(400, "invalid selected country");
+  const country = await selectCountryById(id);
+  if (!country) throw new CustomError(400, "invalid selected country");
   const result = await selectAllCitiesByCountryId(id, is_Active);
   if (!result) throw new CustomError(500, "try again.");
   return result;
@@ -77,6 +82,22 @@ export const deleteCity = async (id: string) => {
   const country = await selectCityById(id);
   if (!country) throw new CustomError(404, "country not found.");
   const result = await deleteCityById(id);
+  if (!result) throw new CustomError(500, "try again.");
+  return result;
+};
+export const createCountry = async (info: newCountryInfo) => {
+  const result = await insertCountry(info);
+  if (!result) throw new CustomError(500, "try again.");
+  return result;
+};
+
+export const createCity = async (
+  country_id: string,
+  info: { name: string; is_active?: boolean }
+) => {
+  const country = await selectCountryById(country_id);
+  if (!country) throw new CustomError(404, "country not found.");
+  const result = await insertCity(country_id, info);
   if (!result) throw new CustomError(500, "try again.");
   return result;
 };

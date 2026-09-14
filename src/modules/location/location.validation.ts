@@ -14,19 +14,18 @@ export const cityInfoSchema = z
     name: z.string().optional(),
     is_active: z.boolean().optional(),
   })
-  .refine((data) => Object.values(data).some((o) => 0 !== undefined), {
+  .refine((data) => Object.values(data).some((o) => o !== undefined), {
     message: "At least one field must be provided",
   });
 
 export const newCountryInfoSchema = z.object({
-  country_id: z.uuid(),
   name: z.string(),
+  code: z.string(),
   is_active: z.boolean(),
 });
 export const newCityInfoSchema = z.object({
   name: z.string(),
-  code: z.string(),
-  is_active: z.boolean(),
+  is_active: z.boolean().optional(),
 });
 
 export type countryInfo = z.infer<typeof countryInfoSchema>;

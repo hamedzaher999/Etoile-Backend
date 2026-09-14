@@ -32,7 +32,14 @@ export const selectPackageById = async (id: string) => {
   const result = await pool.query(query, [id]);
   return result.rows[0];
 };
+export const selectPackageByIdRaw = async (id: string) => {
+  const query = `
+      SELECT * FROM packages
+      WHERE id = $1 AND deleted_at IS NULL`;
 
+  const result = await pool.query(query, [id]);
+  return result.rows[0];
+};
 export const insertPackage = async (info: PackageCreateInfo) => {
   const query = `
     INSERT INTO packages (name, slug, description, price, img_url, is_vip_only, is_active)

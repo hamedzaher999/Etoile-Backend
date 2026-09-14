@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import {
   changeCityInfo,
   changeCountryInfo,
+  createCity,
+  createCountry,
   deleteCity,
   deleteCountry,
   getActiveCountries,
@@ -46,7 +48,6 @@ export const countryActiveCitiesController = async (
 ) => {
   try {
     const { id } = req.params;
-    console.log(id);
     const result = await getCountryActiveCities(id as string);
     return res.status(200).send({
       success: true,
@@ -122,6 +123,24 @@ export const deleteCityController = async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
+  } catch (e) {
+    return errorHandler(e, res);
+  }
+};
+export const createCountryController = async (req: Request, res: Response) => {
+  try {
+    const result = await createCountry(req.body);
+    return res.status(201).send({ success: true, data: result });
+  } catch (e) {
+    return errorHandler(e, res);
+  }
+};
+
+export const createCityController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await createCity(id as string, req.body);
+    return res.status(201).send({ success: true, data: result });
   } catch (e) {
     return errorHandler(e, res);
   }

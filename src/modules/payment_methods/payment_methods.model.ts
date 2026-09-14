@@ -26,9 +26,14 @@ export const selectPaymentMethodByIdRaw = async (id: string) => {
 };
 
 export const insertPaymentMethod = async (info: PaymentMethodInfo) => {
-  const query = `INSERT INTO payment_methods (name, is_online, is_active)
-  VALUES ($1,$2,$3) RETURNING *`;
-  const values = [info.name, info.is_online ?? false, info.is_active ?? true];
+  const query = `INSERT INTO payment_methods (name, is_online, is_active, img_url)
+  VALUES ($1,$2,$3,$4) RETURNING *`;
+  const values = [
+    info.name,
+    info.is_online ?? false,
+    info.is_active ?? true,
+    info.img_url ?? null,
+  ];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
@@ -40,12 +45,13 @@ export const updatePaymentMethod = async (
   const query = `UPDATE payment_methods SET
   name = $1,
   is_online = $2,
-  is_active = $3
-  WHERE id = $4
+  is_active = $3,
+  img_url = $4
+  WHERE id = $5
   AND deleted_at IS NULL
   RETURNING *
   `;
-  const values = [info.name, info.is_online, info.is_active, id];
+  const values = [info.name, info.is_online, info.is_active, info.img_url, id];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

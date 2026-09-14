@@ -12,9 +12,16 @@ import {
   deleteCountryController,
   allCountriesController,
   countryCitiesController,
+  createCityController,
+  createCountryController,
 } from "../modules/location/location.controller.js";
 import { validatorMiddleware } from "../middlewares/validator.middleware.js";
-import { countryInfoSchema } from "../modules/location/location.validation.js";
+import {
+  cityInfoSchema,
+  countryInfoSchema,
+  newCityInfoSchema,
+  newCountryInfoSchema,
+} from "../modules/location/location.validation.js";
 import {
   ordersController,
   OrderStatusController,
@@ -82,6 +89,18 @@ route.patch(
 );
 //-------------
 route.get("/countries", authMiddleware("admin"), allCountriesController);
+route.post(
+  "/countries",
+  authMiddleware("admin"),
+  validatorMiddleware(newCountryInfoSchema, "body"),
+  createCountryController
+);
+route.post(
+  "/countries/:id/cities",
+  authMiddleware("admin"),
+  validatorMiddleware(newCityInfoSchema, "body"),
+  createCityController
+);
 route.patch(
   "/countries/:id",
   authMiddleware("admin"),
@@ -101,6 +120,7 @@ route.get(
 route.patch(
   "/countries/:countryId/cities/:cityId",
   authMiddleware("admin"),
+  validatorMiddleware(cityInfoSchema, "body"),
   changeCityInfoController
 );
 route.delete(

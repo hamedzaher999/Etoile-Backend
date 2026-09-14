@@ -1,5 +1,5 @@
 import pool from "../../db/index.js";
-import { countryInfo } from "./location.validation.js";
+import { countryInfo, newCountryInfo } from "./location.validation.js";
 import { City } from "./locations.types.js";
 import { withTransaction } from "../../db/withTransaction.js";
 
@@ -145,6 +145,24 @@ export const updateCityInfo = async (id: string, cityInfo: City) => {
   RETURNING *
   `;
   const values = [cityInfo.name, cityInfo.is_active, id];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
+export const insertCountry = async (info: newCountryInfo) => {
+  const query = `INSERT INTO countries (name, code, is_active)
+  VALUES ($1,$2,$3) RETURNING *`;
+  const values = [info.name, info.code, info.is_active ?? true];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
+
+export const insertCity = async (
+  country_id: string,
+  info: { name: string; is_active?: boolean }
+) => {
+  const query = `INSERT INTO cities (country_id, name, is_active)
+  VALUES ($1,$2,$3) RETURNING *`;
+  const values = [country_id, info.name, info.is_active ?? true];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

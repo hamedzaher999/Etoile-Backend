@@ -19,7 +19,9 @@ export const activePackagesController = async (req: Request, res: Response) => {
 
 export const allPackagesController = async (req: Request, res: Response) => {
   try {
-    const result = await getAllPackages(req.query);
+    const { is_active } = req.query;
+    const active = is_active !== undefined ? is_active === "true" : undefined;
+    const result = await getAllPackages({ is_active: active });
 
     return res.status(200).send({ success: true, data: result });
   } catch (e) {
